@@ -4,15 +4,20 @@ const User = require('../models/User');// enregistrer les users dans ce middlewa
 
 
 exports.signup = (req, res, next) => {// création des nouveaux users
+  console.log("coucou==========>",req.body)
   bcrypt.hash(req.body.password, 10)//hacher(crypter) le mot de passe(fonction asynchrone)
     .then(hash => {//créer un nouveau yser avec le mot de passe crypté
       const user = new User({
         email: req.body.email,
         password: hash
       });
+      console.log(user)
       user.save()// enregistrer le nouveau user dans la BDD
         .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => {
+            console.log(error.message);
+            return res.status(400).json({ error })
+        });
     })
     .catch(error => res.status(500).json({ error }));
 };

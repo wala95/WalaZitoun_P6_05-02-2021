@@ -1,4 +1,5 @@
 const Sauce = require('../models/sauce');
+const fs = require('fs');
 
 exports.getAllSauce = (req, res, next) => {
     Sauce.find().then(
@@ -13,6 +14,7 @@ exports.getAllSauce = (req, res, next) => {
       }
     );
 };
+
 exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({
       _id: req.params.id
@@ -28,7 +30,7 @@ exports.getOneSauce = (req, res, next) => {
       }
     );
 };
-  
+
 exports.createSauce = (req, res, next) => {
   const sauceObject = JSON.parse(req.body.sauce);
 
@@ -43,73 +45,76 @@ exports.createSauce = (req, res, next) => {
     .catch(error => res.status(400).json({ message: "Echec d'enregistrement d'objet !"}));
 };
 
+// exports.modifySauce = (req, res, next) => {
+// let sauce = undefined;
+//   if(req.file && req.file.filename != undefined){
+//      sauce = new Sauce({
+//       _id: req.params.id,
+//       userId: req.body.userId,
+//       name: req.body.title,
+//       manufacturer:req.body.manufacturer,
+//       description: req.body.description,
+//       mainPepper:req.body.mainPepper,
+//       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,  
+//       heat: req.body.heat,         
+//     });
+//   } else {
+//      sauce = new Sauce({
+//       _id: req.params.id,
+//       userId: req.body.userId,
+//       name: req.body.title,
+//       manufacturer:req.body.manufacturer,
+//       description: req.body.description,
+//       mainPepper:req.body.mainPepper,
+//       imageUrl: req.body. imageUrl,
+//       heat: req.body.heat, 
+//     })
+//   };
+//     Sauce.updateOne({_id: req.params.id}, sauce).then(
+//       () => {
+//         res.status(201).json({
+//           message: 'Objet modifié !'
+//         });
+//       }
+//     ).catch(
+//       (error) => {
+//         res.status(400).json({
+//           error: error
+//         });
+//       }
+//     );
+// };
 exports.modifySauce = (req, res, next) => {
-  // const sauceObject = JSON.parse(req.body.sauce);
-  // delete sauceObject._id;
-let sauce = undefined;
-
-  if(req.file && req.file.filename != undefined){
-     sauce = new Sauce({
-      _id: req.params.id,
-      userId: req.body.userId,
-      name: req.body.title,
-      manufacturer:req.body.manufacturer,
-      description: req.body.description,
-      mainPepper:req.body.mainPepper,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,  
-      heat: req.body.heat,         
-    });
-  } else {
-     sauce = new Sauce({
-      _id: req.params.id,
-      userId: req.body.userId,
-      name: req.body.title,
-      manufacturer:req.body.manufacturer,
-      description: req.body.description,
-      mainPepper:req.body.mainPepper,
-      imageUrl: req.body. imageUrl,
-      heat: req.body.heat, 
-    })
-  };
-    Sauce.updateOne({_id: req.params.id}, sauce).then(
-      () => {
-        res.status(201).json({
-          message: 'Objet modifié !'
-        });
-      }
-    ).catch(
-      (error) => {
-        res.status(400).json({
-          error: error
-        });
-      }
-    );
+  const sauceObject = req.file ?
+    {
+      ...JSON.parse(req.body.sauce),
+      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : { ...req.body };
+  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+    .then(() => res.status(200).json({ message: 'Sauce modifié !'}))
+    .catch(error => res.status(400).json({ error }));
 };
+
+
 exports.deleteSauce = (req, res, next) => {
-    Sauce.deleteOne({_id: req.params.id}).then(
-      () => {
-        res.status(200).json({
-          message: 'Objet supprimé!'
-        });
-      }
-    ).catch(
-      (error) => {
-        res.status(400).json({
-          error: error
-        });
-      }
-    );
+  Sauce.findOne({ _id: req.params.id })
+    .then(sauce => {
+      const filename = sauce.imageUrl.split('/images/')[1];
+      fs.unlink(`images/${filename}`, () => {
+        Sauce.deleteOne({ _id: req.params.id })
+          .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
+          .catch(error => res.status(400).json({ error }));
+      });
+    })
+    .catch(error => res.status(500).json({ error }));
 };
-
-
 
 exports.likedSauce = (req, res, next) => {
-
   let sauceId = req.params.id
   let like = req.body.like;
   let userId = req.body.userId;
 
- Sauce.findById(sauceId).then(sauce => {
+  Sauce.findById(sauceId).then(sauce => {
   let indexLike = sauce.usersLiked.indexOf(userId)
   let indexDislike = sauce.usersDisliked.indexOf(userId)
     if (like === 1 && indexLike < 0) { // user like la sauce et user n'a pas encore aimé la sauce
