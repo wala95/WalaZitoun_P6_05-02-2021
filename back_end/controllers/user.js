@@ -2,10 +2,17 @@ const bcrypt = require('bcrypt'); //crypter le mot de passe
 const jwt = require('jsonwebtoken');//vérifier les tokens d'authentification
 const User = require('../models/User');// enregistrer les users dans ce middleware
 
+const emailRegEx = new RegExp("[^@]+@[^@]+\.[a-zA-Z]{2,3}"); 
+const passwordRegEx = new RegExp("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
 
 exports.signup = (req, res, next) => {// création des nouveaux users
-  console.log("coucou==========>",req.body)
-  bcrypt.hash(req.body.password, 10)//hacher(crypter) le mot de passe(fonction asynchrone)
+    let email =  req.body.email;
+    let password =  req.body.password;
+    console.log(req.body.email)
+    if (!(emailRegEx.test(email) && passwordRegEx.test(password)) ) {
+      return res.status(400).json({ message: "email or password not valid"}); 
+    }else{
+    bcrypt.hash(req.body.password, 10)//hacher(crypter) le mot de passe(fonction asynchrone)
     .then(hash => {//créer un nouveau yser avec le mot de passe crypté
       const user = new User({
         email: req.body.email,
@@ -15,11 +22,11 @@ exports.signup = (req, res, next) => {// création des nouveaux users
       user.save()// enregistrer le nouveau user dans la BDD
         .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
         .catch(error => {
-            console.log(error.message);
             return res.status(400).json({ error })
         });
     })
     .catch(error => res.status(500).json({ error }));
+  };
 };
 
 
