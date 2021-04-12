@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt'); //crypter le mot de passe
 const jwt = require('jsonwebtoken');//vérifier les tokens d'authentification
 const User = require('../models/User');// enregistrer les users dans ce middleware
 
-const emailRegEx = new RegExp("[^@]+@[^@]+\.[a-zA-Z]{2,3}"); 
+const emailRegEx = new RegExp("[^@]+@[^@]+\.[a-zA-Z]{2,}"); 
 const passwordRegEx = new RegExp("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
 
 exports.signup = (req, res, next) => {// création des nouveaux users

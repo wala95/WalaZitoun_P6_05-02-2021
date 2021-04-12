@@ -4,10 +4,13 @@ const mongoose = require('mongoose');// driver(api) qui permet de communiquer av
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 const path = require('path');
+require('dotenv').config();
+const helmet = require('helmet');
+app.use(helmet());
 
 // ouvrir une connection sur la bdd 
 // mongodb+srv://<username>:<mdp>@<urlcluster mongoDB>/<BDD>?retryWrites=true&w=majority
-mongoose.connect('mongodb+srv://wala:asta8firoallah@cluster0.4l44i.mongodb.net/projet6?retryWrites=true&w=majority',
+mongoose.connect(process.env.MONGODB,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
