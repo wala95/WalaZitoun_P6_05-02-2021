@@ -2,10 +2,10 @@ const bcrypt = require('bcrypt'); //crypter le mot de passe
 const jwt = require('jsonwebtoken');//vérifier les tokens d'authentification
 const User = require('../models/User');// enregistrer les users dans ce middleware
 
-const emailRegEx = new RegExp("[^@]+@[^@]+\.[a-zA-Z]{2,}");
+const emailRegEx = /\w+@\w+\.\w{2,10}/;
 const passwordRegEx = new RegExp("(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})");
 
-exports.signup = (req, res, next) => {// création des nouveaux users
+exports.signup = (req, res) => {// création des nouveaux users
   let email = req.body.email;
   let password = req.body.password;
   console.log(req.body.email)
@@ -39,7 +39,7 @@ exports.login = (req, res, next) => { // permettre au utilisateur de se connecte
       bcrypt.compare(req.body.password, user.password) // user trouvé : comparer le MDP avec ceux enregistré dans BD
         .then(valid => {
           if (!valid) {// si mauvais MDP
-            return res.status(401).json({ error: 'Mot de passe incorrect !' });
+            return res.status(401).json({ message: 'Mot de passe incorrect !' });
           }
           res.status(200).json({ //bon MDP et renvoyer un objet JSON
             userId: user._id,

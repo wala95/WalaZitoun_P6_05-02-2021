@@ -5,7 +5,6 @@ const userRoutes = require('./routes/user');
 const path = require('path');
 require('dotenv').config();
 const helmet = require('helmet');
-app.use(helmet());
 
 // ouvrir une connection sur la bdd 
 mongoose.connect(process.env.MONGODB,
@@ -33,3 +32,4 @@ app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
+app.use(helmet());
