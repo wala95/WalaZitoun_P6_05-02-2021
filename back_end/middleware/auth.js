@@ -1,7 +1,7 @@
 
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {  
+module.exports = (req, res, next) => {
   try {
     console.log("=====+>body", req.body)
     const token = req.headers.authorization.split(' ')[1];//récuprer le token dans le header authaurization (inspect/network 2eme mot)
