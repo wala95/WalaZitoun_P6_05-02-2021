@@ -37,7 +37,11 @@ exports.createSauce = (req, res, next) => {
   delete sauceObject._id; // suuprimer l'id au cas ou été renseigné  par le navigateur 
   const sauce = new Sauce({
     ...sauceObject, // remplire les champs à condition que le client a bien renseigner les nom des champs :
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`// modifier l'url de l'image
+    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,// modifier l'url de l'image
+    likes : 0,
+    dislikes : 0,
+    usersLiked : [] ,
+    usersDisliked : [] ,
   });
   console.log('la sauce que je vais insérer', sauce);
   sauce.save() // sauvgarder dans mongoodb un nouveau document qu'on vient de remplir
